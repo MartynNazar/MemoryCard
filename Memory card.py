@@ -1,81 +1,165 @@
-import random
-
 from PyQt5.QtWidgets import *
-
 import database
+import random
+from menu import meniuwind
+import redaction
 
 app = QApplication([])
+
+app.setStyleSheet("""
+    QWidget {
+        background-color: #FFFFDD;
+        color : #016A70;
+    }
+
+    QPushButton {
+        background-color: #D2DE32;
+        color : #016A70;
+        border-radius: 5px ;
+        border-color: #D2DE32;
+        border-style: hidden;
+        border-width: 5px;
+        min-height: 20px;
+        font-size: 15px;
+        font-family: Impact;
+
+    }
+
+    QGroupBox {
+        background-color: #A2C579;
+        color : #016A70;
+    }
+
+    QRadioButton {
+        background-color: #A2C579;
+        color : #016A70;
+    }
+
+    QSpinBox#a{
+        background-color: #D2DE32;
+        color : #016A70;
+        border-radius: 5px ;
+        border-color: #D2DE32;
+        border-style: none;
+        border-width: 5px;
+        min-height: 20px;
+        font-size: 15px;
+        font-family: Impact;
+    }
+
+    QLabel#b{
+        background-color: #FFFFDD;
+        color : #016A70;
+        border-radius: 5px ;
+        border-color: #D2DE32;
+        border-style: none;
+        border-width: 5px;
+        min-height: 20px;
+        font-size: 15px;
+        font-family: Impact;
+    }
+
+""")
+
 window = QWidget()
-menu_btn = QPushButton("Меню")
-relax_bth = QPushButton("Відпочити")
-timer_sbx = QSpinBox()
-minute_lbl = QLabel("Хвилин")
-question_lbl = QLabel("2+2?")
-variant1_btn = QRadioButton("1")
-variant2_btn = QRadioButton("2")
-variant3_btn = QRadioButton("3")
-variant4_btn = QRadioButton("4")
-answer_btn = QPushButton("Відповісти")
-next_question_btn =QPushButton("Наступне запитання")
-res_lbl = QLabel("Результат")
-group = QGroupBox("Варіанти відповідей")
+window.resize(400, 300)
+
+mainline = QVBoxLayout()
+
+menubut = QPushButton('меню')
+restbtn = QPushButton('Відпочити')
+timespn = QSpinBox()
+timespn.setObjectName('a')
+timlb = QLabel('хвилин')
+timlb.setObjectName('b')
+redaguvaty = QPushButton('редагувати питаня')
+
+firstline = QHBoxLayout()
+firstline.addWidget(menubut)
+firstline.addWidget(restbtn)
+firstline.addWidget(timespn)
+firstline.addWidget(timlb)
+mainline.addLayout(firstline)
+
+quetext = QLabel('скільки отчімів у a4 ?')
+mainline.addWidget(quetext)
+
+answersgroup = QGroupBox('варіанти відповідей')
+answer1 = QRadioButton('1')
+answer2 = QRadioButton('2')
+answer3 = QRadioButton('3')
+answer4 = QRadioButton('4')
+answerline = QVBoxLayout()
+answerline.addWidget(answer1)
+answerline.addWidget(answer2)
+answerline.addWidget(answer3)
+answerline.addWidget(answer4)
+answers = [answer1, answer2, answer3, answer4]
+answersgroup.setLayout(answerline)
+mainline.addWidget(answersgroup)
+
+result = QLabel('Результат :')
+answerline.addWidget(result)
+result.hide()
+
+ansbut = QPushButton('відповісти')
+nextque = QPushButton('наступне питання')
+mainline.addWidget(ansbut)
+mainline.addWidget(nextque)
+nextque.hide()
+mainline.addWidget(redaguvaty)
 
 
-main_line = QVBoxLayout()
-
-horizontal_line1 = QHBoxLayout()
-horizontal_line1.addWidget(menu_btn)
-horizontal_line1.addStretch(1)
-horizontal_line1.addWidget(relax_bth)
-horizontal_line1.addWidget(timer_sbx)
-horizontal_line1.addWidget(minute_lbl)
-main_line.addLayout(horizontal_line1)
-main_line.addWidget(question_lbl)
-
-
-
-group_main_line = QVBoxLayout()
-group_main_line.addWidget(variant1_btn)
-group_main_line.addWidget(variant2_btn)
-group_main_line.addWidget(variant3_btn)
-group_main_line.addWidget(variant4_btn)
-group_main_line.addWidget(res_lbl)
-group.setLayout(group_main_line)
-main_line.addWidget(group)
-
-main_line.addWidget(answer_btn)
-main_line.addWidget((next_question_btn))
-answers = [variant1_btn,variant2_btn,variant3_btn,variant4_btn]
-
-
-def set_quest():
-    random.shuffle(answers)
-    current_qustion = database.questions[database.nomer]
-    question_lbl.setText(current_qustion["запитання"])
-    answers[0].setText(current_qustion["Правильна відповідь"])
-    answers[1].setText(current_qustion["Неправильна відповідь1"])
-    answers[2].setText(current_qustion["Неправильна відповідь2"])
-    answers[3].setText(current_qustion["Неправильна відповідь3"])
-set_quest()
-
-res_lbl.hide()
-next_question_btn.hide()
-
-def ans_func():
+def shovresult():
+    for i in range(4):
+        answers[i].hide()
+    result.show()
+    nextque.show()
+    ansbut.hide()
     if answers[0].isChecked():
-        res_lbl.setText("Правильно")
+        result.setText('правильно')
     else:
-        res_lbl.setText("Неправильно")
-    answers[0].hide()
-    answers[1].hide()
-    answers[2].hide()
-    answers[3].hide()
-    res_lbl.show()
-    next_question_btn.show()
-    answer_btn.hide()
+        result.setText('не правильно')
 
-answer_btn.clicked.connect(ans_func)
 
-window.setLayout((main_line))
+def showqueshon():
+    random.shuffle(answers)
+    quetext.setText(database.qeust[database.currentQuest]['питання:'])
+    answers[0].setText(database.qeust[database.currentQuest]['правильеа відповідь'])
+    answers[1].setText(database.qeust[database.currentQuest]['неправильна1'])
+    answers[2].setText(database.qeust[database.currentQuest]['неправильна2'])
+    answers[3].setText(database.qeust[database.currentQuest]['неправильна3'])
+
+
+def showqueshon2():
+    random.shuffle(answers)
+    database.currentQuest += 1
+    quetext.setText(database.qeust[database.currentQuest]['питання:'])
+    answers[0].setText(database.qeust[database.currentQuest]['правильеа відповідь'])
+    answers[1].setText(database.qeust[database.currentQuest]['неправильна1'])
+    answers[2].setText(database.qeust[database.currentQuest]['неправильна2'])
+    answers[3].setText(database.qeust[database.currentQuest]['неправильна3'])
+    result.hide()
+    nextque.hide()
+    for i in range(4):
+        answers[i].show()
+    ansbut.show()
+
+
+def redactioned():
+    window.hide()
+    redaction.redwind()
+    window.show()
+
+    showqueshon()
+
+
+showqueshon()
+ansbut.clicked.connect(shovresult)
+nextque.clicked.connect(showqueshon2)
+menubut.clicked.connect(meniuwind)
+redaguvaty.clicked.connect(redactioned)
+
+window.setLayout(mainline)
 window.show()
 app.exec()
